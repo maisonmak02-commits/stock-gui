@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stock puffs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F0F7; --surface:#FFFFFF; --ink:#23203A; --muted:#6E6A86; --line:#DCD9E8;
+  --good:#1F9D74; --bad:#D9455F; --btn-ink:#FFFFFF;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#17151F; --surface:#221F2E; --ink:#EEEAF8; --muted:#A39FBB; --line:#38344C;
+    --good:#45C99D; --bad:#F06F86; --btn-ink:#17151F; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17151F; --surface:#221F2E; --ink:#EEEAF8; --muted:#A39FBB; --line:#38344C;
+  --good:#45C99D; --bad:#F06F86; --btn-ink:#17151F; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Bricolage Grotesque",ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.45;font-variant-numeric:tabular-nums}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+
+header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-size:2.1rem;font-weight:800;line-height:1;margin:0;letter-spacing:-.02em}
+.role{display:inline-block;margin-top:8px;font-size:.85rem;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+[hidden]{display:none!important}
+.week{color:var(--muted);font-size:.95rem}
+.week b{color:var(--ink)}
+
+nav.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);padding:5px;border-radius:14px;margin-bottom:20px}
+nav.tabs button{flex:1;border:0;background:none;padding:10px 6px;border-radius:10px;font-weight:600;color:var(--muted)}
+nav.tabs button[aria-selected="true"]{background:var(--ink);color:var(--btn-ink)}
+
+.seller{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:16px;border-top:6px solid var(--c)}
+.seller-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.seller h2{margin:0;font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
+.stock-num{font-size:1rem;color:var(--muted)}
+.stock-num b{font-size:1.6rem;color:var(--ink);font-weight:800}
+
+.cartons{display:flex;flex-direction:column;gap:6px;margin:14px 0}
+.carton{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:4px;max-width:420px}
+.cell{aspect-ratio:1;border-radius:6px;background:var(--c);transition:transform .25s}
+.cell.sold{background:transparent;box-shadow:inset 0 0 0 2px var(--line)}
+.cell.pop{animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(.4)}100%{transform:scale(1)}}
+.more{font-size:.85rem;color:var(--muted)}
+
+.sell{display:flex;gap:8px;align-items:stretch}
+.btn-sell{flex:1;border:0;border-radius:16px;padding:18px;background:var(--ink);color:var(--btn-ink);font-size:1.25rem;font-weight:800}
+.btn-sell.confirm{background:var(--good);color:#fff}
+.btn-sell:active{transform:scale(.98)}
+.btn-sell:disabled{opacity:.35;cursor:not-allowed}
+.btn-ghost{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;font-weight:600}
+.btn-ghost:disabled{opacity:.4;cursor:not-allowed}
+.btn-main{border:0;background:var(--ink);color:var(--btn-ink);border-radius:12px;padding:12px 18px;font-weight:700}
+.btn-danger{border:1px solid var(--bad);color:var(--bad);background:transparent;border-radius:12px;padding:8px 12px;font-weight:600}
+
+.figures{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:.95rem;color:var(--muted)}
+.figures b{color:var(--ink);font-size:1.05rem}
+
+details.give{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+details.give summary{cursor:pointer;font-weight:600;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:10px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
+input[type=number],input[type=text]{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;width:110px}
+input[type=text]{width:220px;max-width:100%}
+
+.empty{background:var(--surface);border:2px dashed var(--line);border-radius:20px;padding:28px;text-align:center}
+.empty p{margin:0 0 14px;color:var(--muted)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:16px}
+.panel h2{margin:0 0 4px;font-size:1.3rem;font-weight:800}
+.panel p.sub{margin:0 0 14px;color:var(--muted);font-size:.95rem}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:520px}
+th,td{text-align:right;padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.82rem;color:var(--muted);font-weight:600}
+th:first-child,td:first-child{text-align:left}
+td input[type=number]{width:80px;padding:6px 8px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:8px}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
+.totals div{background:var(--bg);border-radius:14px;padding:12px}
+.totals span{display:block;font-size:.85rem;color:var(--muted)}
+.totals b{font-size:1.5rem;font-weight:800}
+.totals .big b{font-size:2rem}
+.hist{list-style:none;margin:0;padding:0}
+.hist li{border-top:1px solid var(--line);padding:10px 0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.vlist{list-style:none;margin:0;padding:0}
+.vlist li{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.journal{list-style:none;margin:10px 0 0;padding:0;max-height:320px;overflow-y:auto}
+.journal li{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line);font-size:.92rem}
+.journal li:first-child{border-top:0}
+.journal li span:first-letter{text-transform:uppercase}
+.journal li.annulee{color:var(--muted);text-decoration:line-through}
+.note{font-size:.85rem;color:var(--muted);margin-top:12px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--btn-ink);padding:10px 16px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.cell.pop{animation:none}*{transition:none!important}}
+.kpi{font-size:1.6rem;font-weight:800;color:var(--ink)}
+.seller .btn-sell{width:100%;margin-top:14px}
+.give-row{margin-top:10px}
+.give-row input{width:70px}
+details.panel{padding:0}
+details.panel>summary{list-style:none;cursor:pointer;padding:18px;font-size:1.2rem;font-weight:800}
+details.panel>summary::after{content:"＋";float:right;color:var(--muted)}
+details.panel[open]>summary::after{content:"－"}
+details.panel>*:not(summary){margin-left:18px;margin-right:18px}
+details.panel[open]{padding-bottom:18px}
+.login{max-width:380px;margin:12vh auto 0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px}
+.login h1{margin-bottom:6px}
+.login p{color:var(--muted);margin:0 0 18px}
+.login label.f{margin-bottom:12px}
+.login input{width:100%!important}
+.login .btn-main{width:100%;padding:14px}
+.linkbtn{border:0;background:none;color:var(--muted);text-decoration:underline;padding:10px 0;font-size:.9rem}
+.err{color:var(--bad);font-size:.9rem;min-height:1.2em;margin:8px 0}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="wrap" id="loginView" hidden>
+  <form class="login" id="loginForm">
+    <h1>Stock puffs</h1>
+    <p id="loginSub">Connecte-toi pour accéder au stock.</p>
+    <label class="f">Email<input type="email" id="lEmail" autocomplete="email" required></label>
+    <label class="f">Mot de passe<input type="password" id="lPass" autocomplete="current-password" minlength="6" required></label>
+    <div class="err" id="lErr"></div>
+    <button class="btn-main" type="submit" id="lBtn">Se connecter</button>
+    <button class="linkbtn" type="button" id="lSwitch">Pas encore de compte ? Créer un compte</button>
+  </form>
+</div>
+<div class="wrap" id="mainView" hidden>
+  <header class="top">
+    <div><h1>Stock puffs</h1><span class="role" id="role"></span> <button class="linkbtn" id="logout">Se déconnecter</button></div>
+    <div class="week" id="weekSummary">Chargement…</div>
+  </header>
+  <main id="app"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ====== À REMPLIR : Supabase > Project Settings > API ====== */
+const SUPABASE_URL = "https://kuleajdlktmipqpaftrg.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_G2LiwJsSk148KPI1tC3uGQ_LC57vcsD";
+/* =========================================================== */
+
+if(SUPABASE_URL.startsWith("COLLE")){
+  document.body.innerHTML = '<div class="wrap"><div class="empty"><p>Il manque l\'adresse et la clé Supabase en haut du fichier index.html.</p></div></div>';
+  throw new Error("Configuration Supabase manquante");
+}
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const COLORS = ["#F2A93B","#5B6CF0","#EF5A6F","#2BB59A","#9B59D0","#D8B92B","#3BA7D9","#E07B39"];
+const S = { vendeurs:[], lots:[], ventes:[], inventaires:[], config:{achat:0, vente:0, parCarton:10}, tab:"vendeurs", loaded:false };
+const draft = {};
+let gerant = false, monEmail = "", pendingRender = false, lastPop = null, channel = null, reloadTimer = null, signup = false;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const eur = n => (Number(n)||0).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}) + " €";
+const fmtDate = t => new Date(t).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+const fmtHeure = t => { const d=new Date(t); return d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}) + " à " + d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",second:"2-digit"}); };
+const sum = (a,f) => a.reduce((s,x)=>s+(Number(f(x))||0),0);
+const ts = x => Date.parse(x.created_at);
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2600); }
+
+/* ---------- Connexion ---------- */
+$("#lSwitch").addEventListener("click", ()=>{
+  signup = !signup;
+  $("#lBtn").textContent = signup ? "Créer mon compte" : "Se connecter";
+  $("#lSwitch").textContent = signup ? "J'ai déjà un compte, me connecter" : "Pas encore de compte ? Créer un compte";
+  $("#loginSub").textContent = signup ? "Utilise l'email que le gérant a mis sur ton profil vendeur." : "Connecte-toi pour accéder au stock.";
+  $("#lErr").textContent = "";
+});
+$("#loginForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const email = $("#lEmail").value.trim(), password = $("#lPass").value;
+  $("#lErr").textContent = ""; $("#lBtn").disabled = true;
+  const { data, error } = signup ? await sb.auth.signUp({email, password}) : await sb.auth.signInWithPassword({email, password});
+  $("#lBtn").disabled = false;
+  if(error){ $("#lErr").textContent = error.message.includes("Invalid login") ? "Email ou mot de passe incorrect." : error.message; return; }
+  if(signup && !data.session){ $("#lErr").textContent = "Compte créé. Ouvre le mail de confirmation, puis reviens te connecter."; }
+});
+$("#logout").addEventListener("click", async ()=>{ await sb.auth.signOut(); });
+
+sb.auth.onAuthStateChange((_ev, session)=>{ setTimeout(()=>onSession(session), 0); });
+
+async function onSession(session){
+  if(!session){
+    if(channel){ sb.removeChannel(channel); channel=null; }
+    S.loaded = false; monEmail = "";
+    $("#mainView").hidden = true; $("#loginView").hidden = false; return;
+  }
+  if(monEmail === session.user.email && S.loaded) return;
+  monEmail = session.user.email;
+  $("#loginView").hidden = true; $("#mainView").hidden = false;
+  const [{data:g},{data:m}] = await Promise.all([sb.rpc("puffs_is_gerant"), sb.rpc("puffs_est_membre")]);
+  gerant = !!g;
+  if(!m){
+    $("#role").textContent = monEmail;
+    $("#weekSummary").textContent = "";
+    $("#app").innerHTML = `<div class="empty"><p>Ton compte n'est pas encore activé.</p><p>Demande au gérant d'ajouter l'email <b>${esc(monEmail)}</b> à ton profil vendeur, puis recharge la page.</p></div>`;
+    return;
+  }
+  await loadAll();
+  if(!channel){
+    channel = sb.channel("stock");
+    ["vendeurs","lots","ventes","inventaires"].forEach(t => channel.on("postgres_changes",{event:"*",schema:"public",table:"puffs_"+t},()=>{ clearTimeout(reloadTimer); reloadTimer=setTimeout(loadAll,300); }));
+    channel.subscribe();
+  }
+}
+
+/* ---------- Données ---------- */
+async function fetchAll(table){
+  let out = [], from = 0;
+  while(true){
+    const { data, error } = await sb.from(table).select("*").order("created_at").range(from, from+999);
+    if(error) throw error;
+    out = out.concat(data); if(data.length < 1000) break; from += 1000;
+  }
+  return out;
+}
+async function loadAll(){
+  try{
+    const [v,l,ve,i,c] = await Promise.all([fetchAll("puffs_vendeurs"),fetchAll("puffs_lots"),fetchAll("puffs_ventes"),fetchAll("puffs_inventaires"),
+      sb.from("puffs_config").select("*").eq("id",1).maybeSingle()]);
+    S.vendeurs = v.filter(x=>x.actif).map(x=>({id:x.id, nom:x.nom, email:x.email, couleur:x.couleur, createdAt:ts(x)}));
+    S.lots = l.map(x=>({id:x.id, vendeurId:x.vendeur_id, puffs:x.puffs, type:x.type, date:ts(x)}));
+    S.ventes = ve.map(x=>({id:x.id, vendeurId:x.vendeur_id, prix:Number(x.prix), cout:Number(x.cout), date:ts(x)}));
+    S.inventaires = i.map(x=>({...x, date:ts(x)}));
+    if(c.data) S.config = {achat:Number(c.data.achat), vente:Number(c.data.vente), parCarton:c.data.par_carton};
+    S.loaded = true; render();
+  }catch(e){ toast("Chargement impossible : " + (e.message||"erreur")); }
+}
+const monVendeur = () => S.vendeurs.find(v => (v.email||"").toLowerCase() === monEmail.toLowerCase());
+
+/* ---------- Calculs ---------- */
+const lastInvDate = () => Math.max(0, ...S.inventaires.map(i=>i.date||0));
+function statsFor(v){
+  const since = lastInvDate();
+  const lots = S.lots.filter(l=>l.vendeurId===v.id);
+  const ventes = S.ventes.filter(x=>x.vendeurId===v.id);
+  const wLots = lots.filter(l=>l.date>since && l.type!=="ajustement");
+  const wVentes = ventes.filter(x=>x.date>since);
+  const stock = sum(lots,l=>l.puffs) - ventes.length;
+  const ca = sum(wVentes,x=>x.prix), cout = sum(wVentes,x=>x.cout);
+  const journal = wVentes.slice().sort((a,b)=>b.date-a.date);
+  return { stock, remisSemaine: sum(wLots,l=>l.puffs), vendusSemaine: wVentes.length, ca, cout, benef: ca-cout, wVentes, journal };
+}
+function nextSaturday(){ const d=new Date(); d.setDate(d.getDate()+((6-d.getDay()+7)%7)); return d; }
+
+/* ---------- Rendu ---------- */
+function render(){
+  const a = document.activeElement;
+  if(a && a.tagName==="INPUT" && $("#app").contains(a)){ pendingRender = true; return; }
+  pendingRender = false;
+  $("#role").textContent = gerant ? "Gérant" : "Vendeur";
+  const visibles = gerant ? S.vendeurs : S.vendeurs.filter(v=>v===monVendeur());
+  const all = visibles.map(statsFor);
+  const vendus = sum(all,s=>s.vendusSemaine), benef = sum(all,s=>s.benef);
+  $("#weekSummary").innerHTML = gerant
+    ? `Cette semaine<br><b class="kpi">${eur(benef)}</b> de bénéfice · ${vendus} vendue${vendus>1?"s":""}`
+    : `Cette semaine<br><b class="kpi">${vendus}</b> vendue${vendus>1?"s":""}`;
+
+  let html = "";
+  if(!visibles.length) html += `<div class="empty"><p>${gerant ? "Ajoute ton premier vendeur ci-dessous." : "Aucun profil vendeur n'est relié à ton email."}</p></div>`;
+  html += visibles.slice().sort((a,b)=>a.createdAt-b.createdAt).map(v=>{
+    const s = statsFor(v);
+    return `<section class="seller" style="--c:${esc(v.couleur||COLORS[0])}">
+      <div class="seller-head"><h2>${esc(v.nom)}</h2><div class="stock-num"><b>${s.stock}</b> en stock</div></div>
+      <button class="btn-sell" data-act="sell" data-id="${v.id}" ${s.stock<=0?"disabled":""}>${s.stock<=0?"Plus de stock":"Vendu"}</button>
+      ${gerant ? `<div class="row give-row">
+        <input type="number" min="1" step="1" value="1" id="ct-${v.id}" aria-label="Nombre de cartons pour ${esc(v.nom)}">
+        <button class="btn-ghost" data-act="give" data-id="${v.id}">+ carton(s)</button>
+      </div>` : ""}
+      <details class="give"><summary>Ventes de la semaine (${s.journal.length})</summary>${journalHTML(s.journal)}</details>
+    </section>`;
+  }).join("");
+
+  if(gerant){
+    html += `<details class="panel"><summary class="ph">Inventaire du samedi</summary>${inventaireHTML()}</details>
+    <details class="panel"><summary class="ph">Vendeurs</summary>${vendeursHTML()}</details>
+    <p class="note">Prix verrouillés : vente ${eur(S.config.vente)} · achat ${eur(S.config.achat)} · ${esc(S.config.parCarton)} puffs par carton</p>`;
+  }
+  $("#app").innerHTML = html;
+}
+
+function journalHTML(list, avecNom){
+  if(!list.length) return `<p class="note">Aucune vente pour l'instant.</p>`;
+  return `<ul class="journal">` + list.map(x=>{
+    const v = avecNom ? S.vendeurs.find(y=>y.id===x.vendeurId) : null;
+    const nom = avecNom ? `<b>${esc(v ? v.nom : "Vendeur supprimé")}</b> · ` : "";
+    return `<li><span>${nom}${esc(fmtHeure(x.date))}</span><span>${eur(x.prix)}</span></li>`;
+  }).join("") + `</ul>`;
+}
+
+function inventaireHTML(){
+  if(!S.vendeurs.length) return `<p class="note">Ajoute d'abord un vendeur.</p>`;
+  let tCa=0,tCout=0,tManq=0;
+  const rows = S.vendeurs.map(v=>{
+    const s = statsFor(v); tCa+=s.ca; tCout+=s.cout;
+    const val = draft[v.id] ?? "";
+    const ecart = val==="" ? null : Number(val) - s.stock;
+    if(ecart!==null && ecart<0) tManq += -ecart;
+    return `<tr><td>${esc(v.nom)}</td><td>${s.vendusSemaine}</td><td>${s.stock}</td>
+      <td><input type="number" min="0" step="1" data-count="${v.id}" value="${esc(val)}" placeholder="${s.stock}" aria-label="Stock compté chez ${esc(v.nom)}"></td>
+      <td class="${ecart>0?"pos":ecart<0?"neg":""}">${ecart===null?"–":(ecart>0?"+":"")+ecart}</td></tr>`;
+  }).join("");
+  const benef = tCa - tCout;
+  const hist = S.inventaires.slice().sort((a,b)=>b.date-a.date).map(i=>`<li><span>${esc(fmtHeure(i.date))}</span><span><b>${eur(i.benef)}</b> · ${i.vendus} vendues${i.manquantes?` · <span class="neg">${i.manquantes} manquante${i.manquantes>1?"s":""}</span>`:""}</span></li>`).join("");
+  return `<p class="sub">Compte les puffs que chaque vendeur a en main et écris le chiffre.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Vendeur</th><th>Vendues</th><th>Prévu</th><th>Compté</th><th>Écart</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <div class="totals">
+      <div><span>Encaissé</span><b>${eur(tCa)}</b></div>
+      <div class="big"><span>Bénéfice</span><b class="${benef>=0?"pos":"neg"}">${eur(benef)}</b></div>
+      ${tManq?`<div><span>Manquantes</span><b class="neg">${tManq}</b></div>`:""}
+    </div>
+    <button class="btn-main" data-act="closeInv">Clôturer l'inventaire</button>
+    <details class="give"><summary>Toutes les ventes de la semaine</summary>${journalHTML(S.ventes.filter(x=>x.date>lastInvDate()).sort((a,b)=>b.date-a.date), true)}</details>
+    ${hist?`<details class="give"><summary>Inventaires passés</summary><ul class="hist">${hist}</ul></details>`:""}`;
+}
+
+function vendeursHTML(){
+  const list = S.vendeurs.map(v=>`<li><span>${esc(v.nom)} <span class="more">${v.email?esc(v.email):""}</span></span><button class="btn-danger" data-act="delV" data-id="${v.id}">Supprimer</button></li>`).join("");
+  return `${list?`<ul class="vlist">${list}</ul>`:""}
+    <div class="row">
+      <input type="text" id="newV" placeholder="Prénom" aria-label="Prénom du vendeur">
+      <input type="text" id="newE" placeholder="Email (pour qu'il se connecte)" inputmode="email" aria-label="Email du vendeur">
+      <button class="btn-main" data-act="addV">Ajouter</button>
+    </div>`;
+}
+
+/* ---------- Actions ---------- */
+document.addEventListener("focusout", ()=>{ setTimeout(()=>{ if(pendingRender) render(); }, 0); });
+document.addEventListener("input", e=>{ const id = e.target.dataset?.count; if(id!==undefined) draft[id] = e.target.value; });
+
+function errMsg(error){
+  if(!error) return "";
+  if((error.message||"").includes("Plus de stock")) return "Plus de stock pour ce vendeur";
+  if(error.code==="42501") return "Tu n'as pas le droit de faire ça";
+  return error.message || "erreur";
+}
+
+$("#app").addEventListener("click", async e=>{
+  const b = e.target.closest("button[data-act]"); if(!b) return;
+  const act = b.dataset.act, id = b.dataset.id;
+  const v = S.vendeurs.find(x=>x.id===id);
+  if(act!=="sell" && !gerant){ toast("Seul le gérant peut faire ça"); return; }
+
+  if(act==="sell"){
+    if(!b.dataset.confirm){
+      b.dataset.confirm="1"; b.classList.add("confirm"); b.textContent = "Confirmer ?";
+      clearTimeout(b._t); b._t = setTimeout(()=>{ delete b.dataset.confirm; b.classList.remove("confirm"); b.textContent = "Vendu"; }, 4000);
+      return;
+    }
+    clearTimeout(b._t); b.disabled = true; b.textContent = "Enregistrement…"; lastPop = id;
+    const { error } = await sb.from("puffs_ventes").insert({vendeur_id:id});
+    if(error){ toast("Vente refusée : " + errMsg(error)); render(); return; }
+    if(navigator.vibrate) navigator.vibrate(30);
+    toast("Vente enregistrée"); await loadAll(); return;
+  }
+  if(act==="addV"){
+    const nom = $("#newV").value.trim(), email = $("#newE").value.trim().toLowerCase();
+    if(!nom){ toast("Écris un prénom pour créer le profil"); return; }
+    document.activeElement?.blur();
+    const { error } = await sb.from("puffs_vendeurs").insert({nom, email: email||null, couleur: COLORS[S.vendeurs.length % COLORS.length]});
+    if(error){ toast("Création refusée : " + errMsg(error)); return; }
+    toast(`Profil de ${nom} créé`); await loadAll(); return;
+  }
+  if(act==="give"){
+    const ct = Math.max(0, parseInt($("#ct-"+id).value)||0);
+    const puffs = ct*(Number(S.config.parCarton)||10);
+    if(!puffs){ toast("Indique au moins un carton"); return; }
+    document.activeElement?.blur();
+    const { error } = await sb.from("puffs_lots").insert({vendeur_id:id, cartons:ct, puffs, type:"remise"});
+    if(error){ toast("Ajout refusé : " + errMsg(error)); return; }
+    toast(`${puffs} puffs ajoutées au stock de ${v.nom}`); await loadAll(); return;
+  }
+  if(act==="delV"){
+    if(!confirm(`Supprimer le profil de ${v.nom} ? Ses ventes restent dans l'historique.`)) return;
+    const { error } = await sb.from("puffs_vendeurs").update({actif:false}).eq("id", id);
+    if(error){ toast("Suppression refusée : " + errMsg(error)); return; }
+    toast(`Profil de ${v.nom} supprimé`); await loadAll(); return;
+  }
+  if(act==="closeInv"){
+    if(!confirm("Clôturer l'inventaire maintenant ? Les compteurs de la semaine repartiront à zéro.")) return;
+    b.disabled = true;
+    const lignes = [], ajust = []; let manquantes = 0;
+    for(const vd of S.vendeurs){
+      const s = statsFor(vd); const val = draft[vd.id];
+      const compte = (val===undefined || val==="") ? s.stock : Math.max(0, parseInt(val)||0);
+      const ecart = compte - s.stock; if(ecart<0) manquantes += -ecart;
+      lignes.push({vendeur_id:vd.id, nom:vd.nom, recues:s.remisSemaine, vendus:s.vendusSemaine, stock_prevu:s.stock, compte, ecart, ca:s.ca, benef:s.benef});
+      if(ecart!==0) ajust.push({vendeur_id:vd.id, puffs:ecart, type:"ajustement"});
+    }
+    if(ajust.length){ const { error } = await sb.from("puffs_lots").insert(ajust); if(error){ toast("Inventaire refusé : " + errMsg(error)); b.disabled=false; return; } }
+    const ca = sum(lignes,l=>l.ca), benef = sum(lignes,l=>l.benef), vendus = sum(lignes,l=>l.vendus);
+    const { error } = await sb.from("puffs_inventaires").insert({ca, benef, vendus, manquantes, lignes});
+    if(error){ toast("Inventaire refusé : " + errMsg(error)); b.disabled=false; return; }
+    Object.keys(draft).forEach(k=>delete draft[k]);
+    toast(`Inventaire clôturé : ${eur(benef)} de bénéfice`); await loadAll();
+  }
+});
+
+</script>
+</body>
+</html>
